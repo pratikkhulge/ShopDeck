@@ -54,7 +54,7 @@ Before running this application, ensure you have the following installed:
 1. Set up MySQL:
    
    - Create a MySQL database named `shopdeck`.
-   - Update the MySQL connection details in `index.js` to match your MySQL server configuration.
+   - Update the MySQL connection details in `main.js` to match your MySQL server configuration.
 
 2. Session Secret Key:
    
@@ -90,6 +90,68 @@ The server will start running at `http://localhost:3001`.
 - **PUT /profile**: Update the profile information for the current user.
 - **POST /products/:productId/reviews**: Submit a review for a product.
 - **GET /products/:productId/reviews**: Get reviews for a product.
+
+## SQL Queries 
+```sql
+CREATE DATABASE IF NOT EXISTS shopdeck;
+USE shopdeck;
+
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    images JSON
+);
+
+CREATE TABLE IF NOT EXISTS cart (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    shipping_address JSON NOT NULL,
+    billing_address JSON NOT NULL,
+    payment_method VARCHAR(255) NOT NULL,
+    status VARCHAR(255) DEFAULT 'Pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+
+CREATE TABLE IF NOT EXISTS reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    product_id INT NOT NULL,
+    rating INT NOT NULL,
+    comment TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (product_id) REFERENCES products(id)
+);
+```
+
 
 ## License
 
